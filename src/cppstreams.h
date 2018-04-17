@@ -47,7 +47,15 @@ public:
         return s;
     }
 
-    Stream<T, Container>& filter(std::function<bool(const T &)> func);
+    Stream<T, Container> filter(std::function<bool(const T &)> func) {
+        Stream<T, Container> s;
+        for (const auto &e : originalContainerReference) {
+            auto &cont = *s.internalContainer;
+            if (func(e))
+                (cont.*Trait<Container<T>>::append)(e);
+        }
+        return s;
+    }
 
     Container<T> collect(int limit = -1);
 
@@ -90,19 +98,11 @@ private:
     };
 
     std::vector<std::function<T(const T &)> > _mapOperations;
-    std::vector<std::function<bool(const T &)> > _filterOperations;
 
     std::vector<Operation> _pipeline;
     std::unique_ptr<Container<T>> internalContainer;
     const Container<T> & originalContainerReference;
 };
-
-template<typename T, template <class...> typename Container>
-Stream<T, Container> & Stream<T, Container>::filter(std::function<bool(const T &)> func) {
-    _filterOperations.push_back(func);
-    _pipeline.push_back(Operation::makeOperation(_filterOperations.size() - 1, Type::Filter));
-    return *this;
-}
 
 template<typename T, template <class...> typename Container>
 Container<T> Stream<T, Container>::collect(int limit) {
@@ -127,7 +127,7 @@ Container<T> Stream<T, Container>::collect(int limit) {
                     aux = _mapOperations[operation.index](aux);
                     break;
                 case Type::Filter:
-                    wasFiltered = _filterOperations[operation.index](aux);
+                    abort();
                     break;
             }
 
