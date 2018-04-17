@@ -22,15 +22,16 @@ protected:
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_MapDoesNotChangeListSize_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std::list<int> resultList = Stream<int, std::list<int> >::makeStream(testList)
-            .map([](const int &iValue) { return iValue * 2; })
+    auto lambda = [](const int &iValue) -> int { return iValue * 2; };
+    std::list<int> resultList = Stream<int, std::list>::makeStream(testList)
+            .map(lambda)
             .collect();
     ASSERT_EQ(resultList.size(), testList.size());
 }
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_MapLambdaWorks_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std::list<int> resultList = Stream<int, std::list<int> >::makeStream(testList)
+    std::list<int> resultList = Stream<int, std::list>::makeStream(testList)
             .map([](const int &iValue) { return iValue * 2; })
             .collect();
 
@@ -61,7 +62,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_MapLambdaWorks_Test) {
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_FilterWorks_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std::list<int> resultList = Stream<int, std::list<int> >::makeStream(testList)
+    std::list<int> resultList = Stream<int, std::list>::makeStream(testList)
             .filter([](const int &iValue) { return iValue % 2 == 0; })
             .collect();
 
@@ -82,7 +83,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_FilterWorks_Test) {
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_CollectLimitWorks_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std::list<int> resultList = Stream<int, std::list<int> >::makeStream(testList)
+    std::list<int> resultList = Stream<int, std::list>::makeStream(testList)
             .collect(5);
 
     ASSERT_EQ(resultList.size(), 5);
@@ -101,7 +102,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_CollectLimitWorks_Test) {
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_SumAlistOfIntegers_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int sum = Stream<int, std::list<int> >::makeStream(testList)
+    int sum = Stream<int, std::list>::makeStream(testList)
             .sum();
 
     ASSERT_EQ(sum, 45);
@@ -109,7 +110,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_SumAlistOfIntegers_Test) {
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirst_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int result = Stream<int, std::list<int> >::makeStream(testList)
+    int result = Stream<int, std::list>::makeStream(testList)
             .findFirst([](int i) { return i > 0 && i % 2 == 0; }, 0);
 
     ASSERT_EQ(result, 2);
@@ -117,7 +118,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirst_Test) {
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirstReturnDefaultValue_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int result = Stream<int, std::list<int> >::makeStream(testList)
+    int result = Stream<int, std::list>::makeStream(testList)
             .findFirst([](int i) { return i > 100; }, 0);
 
     ASSERT_EQ(result, 0);
@@ -125,7 +126,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirstReturnDefaultValue_Te
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_SumAfterMap_Test) {
     list<int> testList{0, 1, 2};
-    int result = Stream<int, std::list<int> >::makeStream(testList)
+    int result = Stream<int, std::list>::makeStream(testList)
             .map([](const int &value) { return value * 2; })
             .sum(0);
 
@@ -134,7 +135,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_SumAfterMap_Test) {
 
 TEST_F(StreamsFromListTests, StreamsFromListTests_SumAfterFilter_Test) {
     list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int result = Stream<int, std::list<int> >::makeStream(testList)
+    int result = Stream<int, std::list>::makeStream(testList)
             .filter([](const int & iValue) { return iValue % 2 == 0; } )
             .sum(0);
 

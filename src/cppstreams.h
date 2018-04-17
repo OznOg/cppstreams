@@ -11,23 +11,44 @@
 #include <numeric>
 
 
-template<typename T, typename Container>
+template<typename T, template <class...> typename Container>
 class Stream {
 
 public:
-    explicit Stream (const Container & original) : originalContainer(original) {}
+    explicit Stream (const Container<T> & original) : originalContainer(original) {}
 
-    Stream<T, Container>& map(std::function<T(const T &)> func);
+    template<typename F>
+    auto map(F func) -> Stream<decltype(func(T())), Container> {
+        using X = decltype(func(T()));
+        Container<X> s;
+        for (const auto &e : originalContainer) {
+               s.push_back(func(e));
+        }
+        return makeStream(s);
+    }
 
     Stream<T, Container>& filter(std::function<bool(const T &)> func);
 
-    Container collect(int limit = -1);
+    Container<T> collect(int limit = -1);
 
-    T sum(T startValue = 0);
+    T sum(T startValue = 0) {
+        Container<T> collected = collect();
+        return std::accumulate(collected.begin(), collected.end(), startValue);
+    }
 
-    T findFirst(std::function<bool(const T &)> func, T defaultValue);
+    T findFirst(std::function<bool(const T &)> func, T defaultValue) {
+        Container<T> lResult = collect();
+        for (const auto& value : originalContainer ) {
+            if (func(value))
+                return value;
+        }
+        return defaultValue;
+    }
 
-    static Stream<T, Container> makeStream(const Container& original);
+    static Stream<T, Container> makeStream(const Container<T>& original) {
+        Stream<T, Container> oStream(original);
+        return oStream;
+    }
 
 private:
     // Pipeline operation types
@@ -52,33 +73,20 @@ private:
     std::vector<std::function<bool(const T &)> > _filterOperations;
 
     std::vector<Operation> _pipeline;
-    const Container & originalContainer;
+    const Container<T> & originalContainer;
 };
 
-template<typename T, typename Container>
-Stream<T, Container> Stream<T, Container>::makeStream(const Container& original) {
-    Stream<T, Container> oStream(original);
-    return oStream;
-}
-
-template<typename T, typename Container>
-Stream<T, Container> & Stream<T, Container>::map(std::function<T(const T &)> func) {
-    _mapOperations.push_back(func);
-    _pipeline.push_back(Operation::makeOperation(_mapOperations.size() - 1, Type::Map));
-    return *this;
-}
-
-template<typename T, typename Container>
+template<typename T, template <class...> typename Container>
 Stream<T, Container> & Stream<T, Container>::filter(std::function<bool(const T &)> func) {
     _filterOperations.push_back(func);
     _pipeline.push_back(Operation::makeOperation(_filterOperations.size() - 1, Type::Filter));
     return *this;
 }
 
-template<typename T, typename Container>
-Container Stream<T, Container>::collect(int limit) {
+template<typename T, template <class...> typename Container>
+Container<T> Stream<T, Container>::collect(int limit) {
 
-    Container result;
+    Container<T> result;
     limit = limit > 0 ? limit : originalContainer.size();
 
     // Loop through each input value (ONLY ONCE!) and operate if needed
@@ -110,22 +118,6 @@ Container Stream<T, Container>::collect(int limit) {
         result.insert(result.end(), aux);
     }
     return result;
-}
-
-template<typename T, typename Container>
-T Stream<T, Container>::findFirst(std::function<bool(const T &)> func, T defaultValue) {
-    Container lResult = collect();
-    for (const auto& value : originalContainer ) {
-        if (func(value))
-            return value;
-    }
-    return defaultValue;
-}
-
-template<typename T, typename Container>
-T Stream<T, Container>::sum(T startValue) {
-    Container collected = collect();
-    return std::accumulate(collected.begin(), collected.end(), startValue);
 }
 
 

@@ -21,7 +21,7 @@ protected:
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapDoesNotChangeVectorSize_Test) {
     vector<int> testVector{0, 1, 2};
-    std::vector<int> resultVector = Stream<int, std::vector<int> >::makeStream(testVector)
+    std::vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
             .map([](const int &value) { return value * 2; })
             .collect();
     ASSERT_EQ(resultVector.size(), testVector.size());
@@ -29,7 +29,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapDoesNotChangeVectorSize
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapLambdaWorks_Test) {
     vector<int> testVector{0, 1, 2};
-    std::vector<int> resultVector = Stream<int, std::vector<int> >::makeStream(testVector)
+    std::vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
             .map([](const int &value) { return value * 2; })
             .collect();
 
@@ -40,7 +40,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapLambdaWorks_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FilterWorks_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std:vector<int> resultVector = Stream<int, std::vector<int> >::makeStream(testVector)
+    std:vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
         .filter([](const int & iValue) { return iValue % 2 == 0; } )
         .collect();
 
@@ -55,7 +55,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FilterWorks_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_CollectLimitWorks_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std:vector<int> resultVector = Stream<int, std::vector<int> >::makeStream(testVector)
+    std:vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
         .collect(5);
 
     ASSERT_EQ(resultVector.size(), 5);
@@ -69,7 +69,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_CollectLimitWorks_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_SumAVectorOfIntegers_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int sum = Stream<int, std::vector<int> >::makeStream(testVector)
+    int sum = Stream<int, std::vector>::makeStream(testVector)
             .sum();
 
     ASSERT_EQ(sum, 45);
@@ -77,7 +77,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_SumAVectorOfIntegers_Test)
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FindFirst_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int result = Stream<int, std::vector<int> >::makeStream(testVector)
+    int result = Stream<int, std::vector>::makeStream(testVector)
             .findFirst([] (const int& i) { return i > 0 && i % 2 == 0; }, 0);
 
     ASSERT_EQ(result, 2);
@@ -85,7 +85,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FindFirst_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FindFirstReturnDefault_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int result = Stream<int, std::vector<int> >::makeStream(testVector)
+    int result = Stream<int, std::vector>::makeStream(testVector)
             .findFirst([] (const int& i) { return i > 100; }, 0);
 
     ASSERT_EQ(result, 0);
@@ -93,7 +93,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FindFirstReturnDefault_Tes
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_SumAfterMap_Test) {
     vector<int> testVector{0, 1, 2};
-    int result = Stream<int, std::vector<int> >::makeStream(testVector)
+    int result = Stream<int, std::vector>::makeStream(testVector)
             .map([](const int &value) { return value * 2; })
             .sum(0);
 
@@ -102,7 +102,7 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_SumAfterMap_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_SumAfterFilter_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int result = Stream<int, std::vector<int> >::makeStream(testVector)
+    int result = Stream<int, std::vector>::makeStream(testVector)
         .filter([](const int & iValue) { return iValue % 2 == 0; } )
         .sum(0);
 
