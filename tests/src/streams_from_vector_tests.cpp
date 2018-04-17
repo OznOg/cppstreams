@@ -40,11 +40,11 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapLambdaWorks_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FilterWorks_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std:vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
+    std::vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
         .filter([](const int & iValue) { return iValue % 2 == 0; } )
         .collect();
 
-    ASSERT_EQ(resultVector.size(), 5);
+    ASSERT_EQ(resultVector.size(), 5UL);
 
     ASSERT_EQ(resultVector[0], 0);
     ASSERT_EQ(resultVector[1], 2);
@@ -55,10 +55,10 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FilterWorks_Test) {
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_CollectLimitWorks_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std:vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
+    std::vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)
         .collect(5);
 
-    ASSERT_EQ(resultVector.size(), 5);
+    ASSERT_EQ(resultVector.size(), 5UL);
 
     ASSERT_EQ(resultVector[0], 0);
     ASSERT_EQ(resultVector[1], 1);

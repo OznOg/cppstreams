@@ -35,7 +35,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_MapLambdaWorks_Test) {
             .map([](const int &iValue) { return iValue * 2; })
             .collect();
 
-    ASSERT_EQ(resultList.size(), 10);
+    ASSERT_EQ(resultList.size(), 10UL);
 
     ASSERT_EQ(resultList.front(), 0);
     resultList.pop_front();
@@ -66,7 +66,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_FilterWorks_Test) {
             .filter([](const int &iValue) { return iValue % 2 == 0; })
             .collect();
 
-    ASSERT_EQ(resultList.size(), 5);
+    ASSERT_EQ(resultList.size(), 5UL);
 
     ASSERT_EQ(resultList.front(), 0);
     resultList.pop_front();
@@ -86,7 +86,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_CollectLimitWorks_Test) {
     std::list<int> resultList = Stream<int, std::list>::makeStream(testList)
             .collect(5);
 
-    ASSERT_EQ(resultList.size(), 5);
+    ASSERT_EQ(resultList.size(), 5UL);
 
     ASSERT_EQ(resultList.front(), 0);
     resultList.pop_front();

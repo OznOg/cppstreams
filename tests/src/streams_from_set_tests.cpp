@@ -42,11 +42,11 @@ TEST_F(StreamsFromSetTests, StreamsFromSetTests_MapLambdaWorks_Test) {
 
 TEST_F(StreamsFromSetTests, StreamsFromSetTests_FilterWorks_Test) {
     set<int> testSet{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std:set<int> resultSet = Stream<int, std::set>::makeStream(testSet)
+    std::set<int> resultSet = Stream<int, std::set>::makeStream(testSet)
         .filter([](const int & iValue) { return iValue % 2 == 0; } )
         .collect();
 
-    ASSERT_EQ(resultSet.size(), 5);
+    ASSERT_EQ(resultSet.size(), 5UL);
 
     auto it = resultSet.begin();
 
@@ -60,10 +60,10 @@ TEST_F(StreamsFromSetTests, StreamsFromSetTests_FilterWorks_Test) {
 
 TEST_F(StreamsFromSetTests, StreamsFromSetTests_CollectLimitWorks_Test) {
     set<int> testSet{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    std:set<int> resultSet = Stream<int, std::set>::makeStream(testSet)
+    std::set<int> resultSet = Stream<int, std::set>::makeStream(testSet)
         .collect(5);
 
-    ASSERT_EQ(resultSet.size(), 5);
+    ASSERT_EQ(resultSet.size(), 5UL);
 
     auto it = resultSet.begin();
 
@@ -118,11 +118,11 @@ TEST_F(StreamsFromSetTests, StreamsFromSetTests_SumAfterFilter_Test) {
 
 TEST_F(StreamsFromSetTests, StreamsFromSetTests_ResultSetIsOrdered_Test) {
     set<int> testSet{0, 1, 2, 3, 4};
-    std:set<int> resultSet = Stream<int, std::set>::makeStream(testSet)
+    std::set<int> resultSet = Stream<int, std::set>::makeStream(testSet)
         .map([](const int& i) { return 100 - i;})
         .collect();
 
-    ASSERT_EQ(resultSet.size(), 5);
+    ASSERT_EQ(resultSet.size(), 5UL);
 
     auto it = resultSet.begin();
 
