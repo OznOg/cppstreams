@@ -11,6 +11,7 @@
 #include <functional>
 #include <iostream>
 #include <numeric>
+#include <memory>
 
 template <class> struct Trait;
 
@@ -31,19 +32,19 @@ struct Trait<std::set<T>> {
 
 template<typename T, template <class...> typename Container>
 class Stream {
-
+    explicit Stream () : internalContainer(std::make_unique<Container<T>>()), originalContainerReference(*internalContainer) {}
 public:
     explicit Stream (const Container<T> & original) : originalContainerReference(original) {}
 
     template<typename F>
     auto map(F func) -> Stream<decltype(func(T())), Container> {
         using X = decltype(func(T()));
-        Container<X> s;
+        Stream<X, Container> s;
         for (const auto &e : originalContainerReference) {
-               //s.push_back(func(e));
-               (s.*Trait<Container<T>>::append)(func(e));
+            auto &cont = *s.internalContainer;
+            (cont.*Trait<Container<T>>::append)(func(e));
         }
-        return makeStream(s);
+        return s;
     }
 
     Stream<T, Container>& filter(std::function<bool(const T &)> func);
@@ -92,6 +93,7 @@ private:
     std::vector<std::function<bool(const T &)> > _filterOperations;
 
     std::vector<Operation> _pipeline;
+    std::unique_ptr<Container<T>> internalContainer;
     const Container<T> & originalContainerReference;
 };
 
