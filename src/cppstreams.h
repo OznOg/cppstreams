@@ -6,23 +6,42 @@
 #define CPPSTREAMS_STREAM_H
 
 #include <vector>
+#include <list>
+#include <set>
 #include <functional>
 #include <iostream>
 #include <numeric>
 
+template <class> struct Trait;
+
+template<class T>
+struct Trait<std::list<T>> {
+    static constexpr void (std::list<T>::*append)(const T&) = &std::list<T>::push_back;
+};
+
+template<class T>
+struct Trait<std::vector<T>> {
+    static constexpr void (std::vector<T>::*append)(const T&) = &std::vector<T>::push_back;
+};
+
+template<class T>
+struct Trait<std::set<T>> {
+    static constexpr std::pair<typename std::set<T>::iterator,bool> (std::set<T>::*append)(const T&) = &std::set<T>::insert;
+};
 
 template<typename T, template <class...> typename Container>
 class Stream {
 
 public:
-    explicit Stream (const Container<T> & original) : originalContainer(original) {}
+    explicit Stream (const Container<T> & original) : originalContainerReference(original) {}
 
     template<typename F>
     auto map(F func) -> Stream<decltype(func(T())), Container> {
         using X = decltype(func(T()));
         Container<X> s;
-        for (const auto &e : originalContainer) {
-               s.push_back(func(e));
+        for (const auto &e : originalContainerReference) {
+               //s.push_back(func(e));
+               (s.*Trait<Container<T>>::append)(func(e));
         }
         return makeStream(s);
     }
@@ -38,7 +57,7 @@ public:
 
     T findFirst(std::function<bool(const T &)> func, T defaultValue) {
         Container<T> lResult = collect();
-        for (const auto& value : originalContainer ) {
+        for (const auto& value : originalContainerReference ) {
             if (func(value))
                 return value;
         }
@@ -73,7 +92,7 @@ private:
     std::vector<std::function<bool(const T &)> > _filterOperations;
 
     std::vector<Operation> _pipeline;
-    const Container<T> & originalContainer;
+    const Container<T> & originalContainerReference;
 };
 
 template<typename T, template <class...> typename Container>
@@ -87,13 +106,13 @@ template<typename T, template <class...> typename Container>
 Container<T> Stream<T, Container>::collect(int limit) {
 
     Container<T> result;
-    limit = limit > 0 ? limit : originalContainer.size();
+    limit = limit > 0 ? limit : originalContainerReference.size();
 
     // Loop through each input value (ONLY ONCE!) and operate if needed
-    for (const auto & value : originalContainer) {
+    for (const auto & value : originalContainerReference) {
 
         // if we reach the limit, just break
-        if (result.size() == limit) break;
+        if (result.size() == (size_t)limit) break;
 
         T aux = value; // T object should override operator equals
         auto wasFiltered = true;
