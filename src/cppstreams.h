@@ -57,7 +57,16 @@ public:
         return s;
     }
 
-    Container<T> collect(int limit = -1);
+    Container<T> collect(int limit = -1) {
+        Container<T> cont;
+        size_t _limit = limit == -1 ? originalContainerReference.size() : limit;
+        for (const auto &e : originalContainerReference) {
+            (cont.*Trait<Container<T>>::append)(e);
+            if (--_limit == 0)
+                break;
+        }
+        return cont;
+    }
 
     T sum(T startValue = 0) {
         Container<T> collected = collect();
@@ -79,67 +88,9 @@ public:
     }
 
 private:
-    // Pipeline operation types
-    enum class Type {
-        Map,
-        Filter
-    };
-
-    struct Operation {
-        int index;
-        enum Type type;
-
-        static Operation makeOperation(int index, enum Type type) {
-            Operation operation;
-            operation.index = index;
-            operation.type = type;
-            return operation;
-        }
-    };
-
-    std::vector<std::function<T(const T &)> > _mapOperations;
-
-    std::vector<Operation> _pipeline;
     std::unique_ptr<Container<T>> internalContainer;
     const Container<T> & originalContainerReference;
 };
-
-template<typename T, template <class...> typename Container>
-Container<T> Stream<T, Container>::collect(int limit) {
-
-    Container<T> result;
-    limit = limit > 0 ? limit : originalContainerReference.size();
-
-    // Loop through each input value (ONLY ONCE!) and operate if needed
-    for (const auto & value : originalContainerReference) {
-
-        // if we reach the limit, just break
-        if (result.size() == (size_t)limit) break;
-
-        T aux = value; // T object should override operator equals
-        auto wasFiltered = true;
-
-        // Go through each operation on the pipeline and execute the lambdas
-        for (const auto& operation : _pipeline) {
-
-            switch (operation.type) {
-                case Type::Map:
-                    aux = _mapOperations[operation.index](aux);
-                    break;
-                case Type::Filter:
-                    abort();
-                    break;
-            }
-
-        }
-        // So if the filter filters there is no reason to keep this value on the output
-        if (!wasFiltered)
-            continue;
-
-        result.insert(result.end(), aux);
-    }
-    return result;
-}
 
 
 #endif //CPPSTREAMS_STREAM_H
