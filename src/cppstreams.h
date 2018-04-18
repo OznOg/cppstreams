@@ -31,9 +31,12 @@ struct Trait<std::set<T>> {
     static constexpr std::pair<typename std::set<T>::iterator,bool> (std::set<T>::*append)(const T&) = &std::set<T>::insert;
 };
 
+template<typename Container>
+class Stream;
+
 template<typename T, template <class...> typename Container>
-class Stream {
-    template <typename Y, template <typename...> class Z>
+class Stream<Container<T>> {
+    template <typename Y>
     friend class Stream;
 
     explicit Stream () : internalContainer(std::make_unique<Container<T>>()), originalContainerReference(*internalContainer) {}
@@ -41,9 +44,9 @@ public:
     explicit Stream (const Container<T> & original) : originalContainerReference(original) {}
 
     template<typename F>
-    auto map(F func) -> Stream<decltype(func(T())), Container> {
+    auto map(F func) -> Stream<Container<decltype(func(T()))>> {
         using X = decltype(func(T()));
-        Stream<X, Container> s;
+        Stream<Container<X>> s;
         for (const auto &e : originalContainerReference) {
             auto &cont = *s.internalContainer;
             (cont.*Trait<Container<X>>::append)(func(e));
@@ -51,8 +54,8 @@ public:
         return s;
     }
 
-    Stream<T, Container> filter(std::function<bool(const T &)> func) {
-        Stream<T, Container> s;
+    Stream<Container<T>> filter(std::function<bool(const T &)> func) {
+        Stream<Container<T>> s;
         for (const auto &e : originalContainerReference) {
             auto &cont = *s.internalContainer;
             if (func(e))
@@ -92,8 +95,8 @@ public:
         return originalContainerReference.front();
     }
 
-    static Stream<T, Container> makeStream(const Container<T>& original) {
-        Stream<T, Container> oStream(original);
+    static Stream<Container<T>> makeStream(const Container<T>& original) {
+        Stream<Container<T>> oStream(original);
         return oStream;
     }
 
