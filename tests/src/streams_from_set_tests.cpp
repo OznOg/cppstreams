@@ -85,7 +85,7 @@ TEST_F(StreamsFromSetTests, StreamsFromSetTests_SumASetOfIntegers_Test) {
 TEST_F(StreamsFromSetTests, StreamsFromSetTests_FindFirst_Test) {
     set<int> testSet{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int result = Stream<int, std::set>::makeStream(testSet)
-            .findFirst([] (const int& i) { return i > 0 && i % 2 == 0; }, 0);
+            .findFirst([] (const int& i) { return i > 0 && i % 2 == 0; }).value_or(0);
 
     ASSERT_EQ(result, 2);
 }
@@ -93,7 +93,7 @@ TEST_F(StreamsFromSetTests, StreamsFromSetTests_FindFirst_Test) {
 TEST_F(StreamsFromSetTests, StreamsFromSetTests_FindFirstReturnDefault_Test) {
     set<int> testSet{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int result = Stream<int, std::set>::makeStream(testSet)
-            .findFirst([] (const int& i) { return i > 100; }, 0);
+            .findFirst([] (const int& i) { return i > 100; }).value_or(0);
 
     ASSERT_EQ(result, 0);
 }

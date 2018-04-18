@@ -77,13 +77,13 @@ public:
         return std::accumulate(collected.begin(), collected.end(), startValue);
     }
 
-    T findFirst(std::function<bool(const T &)> func, T defaultValue) {
+    std::optional<T> findFirst(std::function<bool(const T &)> func) {
         Container<T> lResult = collect();
         for (const auto& value : originalContainerReference ) {
             if (func(value))
                 return value;
         }
-        return defaultValue;
+        return std::nullopt;
     }
 
     std::optional<T> findAny() {

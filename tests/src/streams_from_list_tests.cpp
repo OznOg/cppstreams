@@ -111,7 +111,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_SumAlistOfIntegers_Test) {
 TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirst_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int result = Stream<int, std::list>::makeStream(testList)
-            .findFirst([](int i) { return i > 0 && i % 2 == 0; }, 0);
+            .findFirst([](int i) { return i > 0 && i % 2 == 0; }).value_or(0);
 
     ASSERT_EQ(result, 2);
 }
@@ -119,7 +119,7 @@ TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirst_Test) {
 TEST_F(StreamsFromListTests, StreamsFromListTests_FindFirstReturnDefaultValue_Test) {
     std::list<int> testList{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int result = Stream<int, std::list>::makeStream(testList)
-            .findFirst([](int i) { return i > 100; }, 0);
+            .findFirst([](int i) { return i > 100; }).value_or(0);
 
     ASSERT_EQ(result, 0);
 }
