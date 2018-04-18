@@ -100,6 +100,11 @@ public:
     size_t count() {
         return originalContainerReference.size();
     }
+
+    template <class Res, class BinaryOperation>
+    Res reduce(Res init, BinaryOperation op) {
+        return accumulate(originalContainerReference.begin(), originalContainerReference.end(), init, op);
+    }
 private:
     std::unique_ptr<Container<T>> internalContainer;
     const Container<T> & originalContainerReference;

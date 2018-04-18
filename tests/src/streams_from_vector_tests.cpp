@@ -50,6 +50,14 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapToNewType_Test) {
     ASSERT_EQ(resultVector[2], "2");
 }
 
+TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_reduce) {
+    vector<int> testVector{0, 1, 2};
+    auto result = Stream<int, std::vector>::makeStream(testVector)
+            .reduce(std::string(), [](std::string s, const int &value) { return s + std::to_string(value); });
+
+    ASSERT_EQ(result, "012");
+}
+
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_findAnyWorks_Test) {
     vector<int> testVector{0, 1, 2};
     auto resultVector = Stream<int, std::vector>::makeStream(testVector)
