@@ -97,6 +97,9 @@ public:
         return oStream;
     }
 
+    size_t count() {
+        return originalContainerReference.size();
+    }
 private:
     std::unique_ptr<Container<T>> internalContainer;
     const Container<T> & originalContainerReference;
