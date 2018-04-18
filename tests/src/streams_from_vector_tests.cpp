@@ -50,6 +50,18 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapToNewType_Test) {
     ASSERT_EQ(resultVector[2], "2");
 }
 
+TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_findAnyWorks_Test) {
+    vector<int> testVector{0, 1, 2};
+    auto resultVector = Stream<int, std::vector>::makeStream(testVector)
+            .map([](const int &value) { return value * 2; })
+            .findAny();
+    ASSERT_TRUE(resultVector);
+    auto resultEmptyVector = Stream<int, std::vector>::makeStream(std::vector<int>())
+            .map([](const int &value) { return value * 2; })
+            .findAny();
+    ASSERT_FALSE(resultEmptyVector);
+}
+
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FilterWorks_Test) {
     vector<int> testVector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     std::vector<int> resultVector = Stream<int, std::vector>::makeStream(testVector)

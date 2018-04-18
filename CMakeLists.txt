@@ -5,7 +5,7 @@ project(cppstreams_lib VERSION 1.0.0 LANGUAGES CXX)
 option(CPPSTREAMS_BuildTests "Build the unit tests" ON)
 
 #set(CMAKE_VERBOSE_MAKEFILE OFF)
-set(CMAKE_CXX_FLAGS         "-std=c++14 -Wall -Werror -Wextra -O0 -ggdb -lasan")
+set(CMAKE_CXX_FLAGS         "-std=c++17 -Wall -Werror -Wextra -O0 -ggdb -lasan")
 set(CPPSTREAMS_SOURCE_DIR   "src/")
 
 add_library(${PROJECT_NAME} INTERFACE)

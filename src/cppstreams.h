@@ -12,6 +12,7 @@
 #include <iostream>
 #include <numeric>
 #include <memory>
+#include <optional>
 
 template <class> struct Trait;
 
@@ -83,6 +84,12 @@ public:
                 return value;
         }
         return defaultValue;
+    }
+
+    std::optional<T> findAny() {
+        if (originalContainerReference.empty())
+            return std::nullopt;
+        return originalContainerReference.front();
     }
 
     static Stream<T, Container> makeStream(const Container<T>& original) {
