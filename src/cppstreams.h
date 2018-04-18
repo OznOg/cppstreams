@@ -32,6 +32,9 @@ struct Trait<std::set<T>> {
 
 template<typename T, template <class...> typename Container>
 class Stream {
+    template <typename Y, template <typename...> class Z>
+    friend class Stream;
+
     explicit Stream () : internalContainer(std::make_unique<Container<T>>()), originalContainerReference(*internalContainer) {}
 public:
     explicit Stream (const Container<T> & original) : originalContainerReference(original) {}
@@ -42,7 +45,7 @@ public:
         Stream<X, Container> s;
         for (const auto &e : originalContainerReference) {
             auto &cont = *s.internalContainer;
-            (cont.*Trait<Container<T>>::append)(func(e));
+            (cont.*Trait<Container<X>>::append)(func(e));
         }
         return s;
     }

@@ -4,6 +4,7 @@
 #include <cppstreams.h>
 #include <gtest/gtest.h>
 #include <vector>
+#include <string>
 
 using ::testing::Test;
 using namespace std;
@@ -36,6 +37,17 @@ TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapLambdaWorks_Test) {
     ASSERT_EQ(resultVector[0], 0);
     ASSERT_EQ(resultVector[1], 2);
     ASSERT_EQ(resultVector[2], 4);
+}
+
+TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_MapToNewType_Test) {
+    vector<int> testVector{0, 1, 2};
+    auto resultVector = Stream<int, std::vector>::makeStream(testVector)
+            .map([](const int &value) { return std::to_string(value); })
+            .collect();
+
+    ASSERT_EQ(resultVector[0], "0");
+    ASSERT_EQ(resultVector[1], "1");
+    ASSERT_EQ(resultVector[2], "2");
 }
 
 TEST_F(StreamsFromVectorTests, StreamsFromVectorTests_FilterWorks_Test) {
