@@ -13,22 +13,23 @@
 #include <numeric>
 #include <memory>
 #include <optional>
+#include <future>
 
 template <class> struct Trait;
 
 template<class T>
 struct Trait<std::list<T>> {
-    static constexpr void (std::list<T>::*append)(const T&) = &std::list<T>::push_back;
+    static constexpr void (std::list<T>::*append)(T&&) = &std::list<T>::push_back;
 };
 
 template<class T>
 struct Trait<std::vector<T>> {
-    static constexpr void (std::vector<T>::*append)(const T&) = &std::vector<T>::push_back;
+    static constexpr void (std::vector<T>::*append)(T&&) = &std::vector<T>::push_back;
 };
 
 template<class T>
 struct Trait<std::set<T>> {
-    static constexpr std::pair<typename std::set<T>::iterator,bool> (std::set<T>::*append)(const T&) = &std::set<T>::insert;
+    static constexpr std::pair<typename std::set<T>::iterator,bool> (std::set<T>::*append)(T&&) = &std::set<T>::insert;
 };
 
 template<typename Container>
@@ -39,36 +40,42 @@ class Stream<Container<T>> {
     template <typename Y>
     friend class Stream;
 
-    explicit Stream () : internalContainer(std::make_unique<Container<T>>()), originalContainerReference(*internalContainer) {}
+    explicit Stream () : internalContainer(std::make_unique<std::list<std::future<T>>>()) {
+    }
 public:
-    explicit Stream (const Container<T> & original) : originalContainerReference(original) {}
+    explicit Stream (const Container<T> & original) : internalContainer(std::make_unique<std::list<std::future<T>>>()) {
+        for (const auto &e : original) {
+            internalContainer->push_back(std::move(std::async(std::launch::deferred, [&] () { return e; })));
+        }
+    }
 
     template<typename F>
     auto map(F func) -> Stream<Container<decltype(func(T()))>> {
         using X = decltype(func(T()));
         Stream<Container<X>> s;
-        for (const auto &e : originalContainerReference) {
+        for (auto &e : *internalContainer) {
             auto &cont = *s.internalContainer;
-            (cont.*Trait<Container<X>>::append)(func(e));
+            cont.push_back(std::move(std::async(std::launch::deferred, [&] () { return func(e.get()); })));
         }
         return s;
     }
 
     Stream<Container<T>> filter(std::function<bool(const T &)> func) {
         Stream<Container<T>> s;
-        for (const auto &e : originalContainerReference) {
+        for (auto &e : *internalContainer) {
             auto &cont = *s.internalContainer;
-            if (func(e))
-                (cont.*Trait<Container<T>>::append)(e);
+            auto val = e.get();
+            if (func(val))
+                cont.push_back(std::async(std::launch::deferred, [=] () { return val; }));
         }
         return s;
     }
 
     Container<T> collect(int limit = -1) {
         Container<T> cont;
-        size_t _limit = limit == -1 ? originalContainerReference.size() : limit;
-        for (const auto &e : originalContainerReference) {
-            (cont.*Trait<Container<T>>::append)(e);
+        size_t _limit = limit == -1 ? internalContainer->size() : limit;
+        for (auto &e : *internalContainer) {
+            (cont.*Trait<Container<T>>::append)(e.get());
             if (--_limit == 0)
                 break;
         }
@@ -81,36 +88,35 @@ public:
     }
 
     std::optional<T> findFirst(std::function<bool(const T &)> func) {
-        Container<T> lResult = collect();
-        for (const auto& value : originalContainerReference ) {
-            if (func(value))
-                return value;
+        for (auto& value : *internalContainer ) {
+            auto v = value.get();
+            if (func(v))
+                return v;
         }
         return std::nullopt;
     }
 
     std::optional<T> findAny() {
-        if (originalContainerReference.empty())
+        if (internalContainer->empty())
             return std::nullopt;
-        return originalContainerReference.front();
+        return internalContainer->front().get();
     }
 
     static Stream<Container<T>> makeStream(const Container<T>& original) {
         Stream<Container<T>> oStream(original);
-        return oStream;
+        return std::move(oStream);
     }
 
     size_t count() {
-        return originalContainerReference.size();
+        return internalContainer->size();
     }
 
     template <class Res, class BinaryOperation>
     Res reduce(Res init, BinaryOperation op) {
-        return accumulate(originalContainerReference.begin(), originalContainerReference.end(), init, op);
+        return accumulate(internalContainer->begin(), internalContainer->end(), init, [&] (Res r, typename Container<std::future<T>>::value_type &v) { return op(r, v.get()); });
     }
 private:
-    std::unique_ptr<Container<T>> internalContainer;
-    const Container<T> & originalContainerReference;
+    std::unique_ptr<std::list<std::future<T>>> internalContainer;
 };
 
 
